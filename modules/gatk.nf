@@ -41,10 +41,7 @@ process gatk_scatterintervals {
   script:
 
   """
-  scatter_count=\$(grep -v '@' -c aten_final_0.11.Sc0000022.interval_list)
-
-  if ((\${scatter_count} > 1)); then mkdir -p scatter;fi
-
+  mkdir -p scatter
   gatk IntervalListTools -I $intervallist --SCATTER_CONTENT $chunksize -O scatter
   for f in \$(find scatter -name '*.interval_list');do 
     tn=\$(echo \$f | sed 's:/:_:g');
