@@ -47,7 +47,7 @@ workflow do_bqsr {
 
     ch_final_bams = ch_recal_bams.groupTuple() | gatk_mergebams
 
-    ch_merged_reports | gatk_analyzecovariates
+//    ch_merged_reports | gatk_analyzecovariates
 
 }
 
