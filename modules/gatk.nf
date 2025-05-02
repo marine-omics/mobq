@@ -88,12 +88,13 @@ process gatk_gatherbqsrreports {
 
   input:
     tuple val(sample), path(reportlist)
+    val(round)
 
   output:
     tuple val(sample), path("*merged.recal")
 
   script:
-    def outfile = "${sample}.merged.recal"
+    def outfile = "${sample}.${round}.merged.recal"
     def infiles = reportlist.join(" -I ")
 
   """
@@ -141,7 +142,7 @@ process gatk_mergebams {
     tuple val(sample), path(bamlist)
 
   output:
-    tuple val(sample), path("*recal.merged.bam")
+    tuple val(sample), path("*recal.merged.bam"), path("*recal.merged.*bai")
 
   script:
     def outfile = "${sample}.recal.merged.bam"

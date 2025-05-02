@@ -1,6 +1,7 @@
 nextflow.enable.dsl=2
 
 include { gatk4_createsequencedict; gatk4_createintervallist; gatk_scatterintervals;  gatk_baserecalibrator; gatk_gatherbqsrreports; gatk_applybqsr; gatk_mergebams; gatk_analyzecovariates } from './modules/gatk.nf'
+include { gatk_baserecalibrator as gatk_baserecalibrator2 ; gatk_gatherbqsrreports as gatk_gatherbqsrreports2 } from './modules/gatk.nf'
 include { sidx; faidx } from './modules/samtools.nf'
 include { tabix } from './modules/bcftools.nf'
 
@@ -34,20 +35,21 @@ workflow do_bqsr {
 
     ch_recal_tables = gatk_baserecalibrator(ch_baserecalibrator_inputs,genome_fasta,genome_fai,genome_dict,ch_snps,ch_indels)
 
-    ch_merged_reports = ch_recal_tables.groupTuple().map{ s,interval,recal -> [s,recal]} | gatk_gatherbqsrreports
+    ch_merged_reports = gatk_gatherbqsrreports(ch_recal_tables.groupTuple().map{ s,interval,recal -> [s,recal]},1)
 
-  //  ch_baserecalibrator_inputs.view()
-
-//    ch_merged_reports.view()
-
-    //ch_merged_reports.join(ch_baserecalibrator_inputs,remainder:true).view()
     ch_applybqsr_inputs = ch_baserecalibrator_inputs.combine(ch_merged_reports, by: 0)
 
     ch_recal_bams = gatk_applybqsr(ch_applybqsr_inputs,genome_fasta,genome_fai,genome_dict)
 
-    ch_final_bams = ch_recal_bams.groupTuple() | gatk_mergebams
+    ch_final_bams = ch_recal_bams.groupTuple(sort: { p -> p.baseName }) | gatk_mergebams
 
-//    ch_merged_reports | gatk_analyzecovariates
+// Second Round. So we can assess how well recal has worked
+    ch_redorecal_inputs = ch_final_bams.combine(ch_gatk_scatter_intervals)
+
+    ch_redorecal_inputs.view()
+
+    ch_recal_tables2 = gatk_baserecalibrator2(ch_redorecal_inputs,genome_fasta,genome_fai,genome_dict,ch_snps,ch_indels)
+    ch_merged_reports2 = gatk_gatherbqsrreports2(ch_recal_tables2.groupTuple().map{ s,interval,recal -> [s,recal]},2)
 
 }
 
