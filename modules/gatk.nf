@@ -105,6 +105,10 @@ process gatk_gatherbqsrreports {
   """
 }
 
+// Note that parameters for this are a bit unintuitive. See https://gatk.broadinstitute.org/hc/en-us/community/posts/360056320991-options-used-during-base-recalibration
+// Apparently it is fine to quantize quals into these crude bins 10,20,30
+// --use-original-qualities allows us to apply BQSR in a subsequent round
+//
 process gatk_applybqsr {
   input:
     tuple val(sample), path(bam), path(bai), path(interval), path(recalreport)
