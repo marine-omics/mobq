@@ -9,6 +9,7 @@ include { tabix } from './modules/bcftools.nf'
 // params.snps = null
 // params.indels = null
 params.bams = null
+params.mask = null
 
 
 
@@ -27,7 +28,7 @@ workflow do_bqsr {
 
     genome_fai = faidx(genome_fasta) | collect
 
-    genome_intervals = gatk4_createintervallist(genome_fai,genome_dict)
+    genome_intervals = gatk4_createintervallist(params.mask,genome_dict)
     ch_gatk_scatter_intervals = gatk_scatterintervals(genome_intervals,params.gatk_chunksize) | flatten
 
     ch_baserecalibrator_inputs = indexed_bams.combine(ch_gatk_scatter_intervals)

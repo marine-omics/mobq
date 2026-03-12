@@ -14,7 +14,7 @@ process gatk4_createsequencedict {
 
 process gatk4_createintervallist {
   input:
-    path(reffaidx)
+    path(refmask)
     path(refdict)
 
   output:
@@ -25,8 +25,7 @@ process gatk4_createintervallist {
     def outfile = "${refdict.baseName}.interval_list"
 
   """
-  cat $reffaidx | awk '{OFS="\t";print \$1,0,\$2}' > ref.bed
-  gatk BedToIntervalList -I ref.bed -O $outfile -SD $refdict
+  gatk BedToIntervalList -I $refmask -O $outfile -SD $refdict
   """
 }
 
