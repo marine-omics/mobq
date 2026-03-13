@@ -68,7 +68,7 @@ process gatk_baserecalibrator {
     def outfile = "${bam.baseName}.${interval.baseName}.recal"
 
   """
-  gatk --java-options "-Xmx${task.memory.giga}G" \
+  gatk --java-options "-Xmx${task.memory.giga-8}G" \
       BaseRecalibrator \
       -R $genome \
       -I $bam \
@@ -97,7 +97,7 @@ process gatk_gatherbqsrreports {
     def infiles = reportlist.join(" -I ")
 
   """
-  gatk --java-options "-Xmx${task.memory.giga}G" \
+  gatk --java-options "-Xmx${task.memory.giga-4}G" \
      GatherBQSRReports \
       -I ${infiles} \
       -O ${outfile}
@@ -122,7 +122,7 @@ process gatk_applybqsr {
     def outfile = "${bam.baseName}.${interval.baseName}.recal.bam"
 
   """
-  gatk --java-options "-Xms${task.memory.giga}G" \
+  gatk --java-options "-Xms${task.memory.giga-5}G" \
       ApplyBQSR \
       -R ${genome} \
       -I ${bam} \
@@ -152,7 +152,7 @@ process gatk_mergebams {
     def infiles = bamlist.join(" --INPUT ")
 
   """
-  gatk --java-options "-Dsamjdk.compression_level=5 -Xms${task.memory.giga - 1}G" \
+  gatk --java-options "-Dsamjdk.compression_level=5 -Xms${task.memory.giga - 10}G" \
       GatherBamFiles \
       --INPUT ${infiles} \
       --OUTPUT ${outfile} \
